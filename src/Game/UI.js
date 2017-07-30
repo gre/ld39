@@ -2,6 +2,7 @@
 import React, { Component, PureComponent } from "react";
 import "./UI.css";
 import { affordable, getCost } from "./logic";
+import KeyHandler from "react-key-handler";
 
 class Bar extends PureComponent {
   static defaultProps = {
@@ -322,13 +323,36 @@ class OpenedMarket extends Component {
   }
 }
 
+class Help extends Component {
+  render() {
+    return (
+      <div>
+        <h2>Help</h2>
+        <div>(to be written...)</div>
+      </div>
+    );
+  }
+}
+
+class GameOver extends Component {
+  render() {
+    return (
+      <div>
+        <h2>Game Over</h2>
+      </div>
+    );
+  }
+}
+
 const OpenedComps = {
   train: OpenedTrain,
   miner: OpenedMiner,
   mine: OpenedMine,
   base: OpenedBase,
   accumulator: OpenedAccumulator,
-  market: OpenedMarket
+  market: OpenedMarket,
+  help: Help,
+  gameOver: GameOver
 };
 
 class Opened extends Component {
@@ -352,7 +376,7 @@ class Opened extends Component {
 
 class Button extends Component {
   render() {
-    const { active, disabled, onClick, children } = this.props;
+    const { active, disabled, onClick, children, triggerKey } = this.props;
     return (
       <span
         className={[
@@ -362,6 +386,13 @@ class Button extends Component {
         ].join(" ")}
         onClick={onClick}
       >
+        {triggerKey
+          ? <KeyHandler
+              keyEventName="keyup"
+              keyValue={triggerKey.toLowerCase()}
+              onKeyHandle={onClick}
+            />
+          : null}
         {children}
       </span>
     );
@@ -372,10 +403,28 @@ class CreateModeButton extends Component {
   render() {
     const { game, action, id, ...rest } = this.props;
     return game.createMode === id
-      ? <Button active onClick={() => action("createMode", null)} {...rest} />
-      : <Button onClick={() => action("createMode", id)} {...rest} />;
+      ? <Button
+          triggerKey={modeLetters[id]}
+          active
+          onClick={() => action("createMode", null)}
+          {...rest}
+        />
+      : <Button
+          triggerKey={modeLetters[id]}
+          onClick={() => action("createMode", id)}
+          {...rest}
+        />;
   }
 }
+
+const modeLetters = {
+  help: "H",
+  train: "T",
+  track: "R",
+  destroyTrack: "D",
+  miner: "M",
+  accumulator: "A"
+};
 
 class ActionMenuGeneral extends Component {
   render() {
@@ -389,20 +438,23 @@ class ActionMenuGeneral extends Component {
           id={id}
           disabled={!affordable(game, cost)}
         >
-          {label} (💰{cost})
+          <strong>{label[0]}</strong>
+          {label.slice(1)} (💰{cost})
         </CreateModeButton>
       );
     };
     return (
       <div className="action-menu-general">
+        <Button onClick={() => action("open", { type: "help" })}>Help</Button>
+        <div className="sep" />
         <CreateModeButton game={game} action={action} id="destroyTrack">
-          Destroy Rail
+          <strong>D</strong>estroy Rail
         </CreateModeButton>
         <div className="sep" />
         <Buyable label="Rail" id="track" />
         <Buyable label="Train" id="train" />
         <Buyable label="Miner" id="miner" />
-        <Buyable label="Acc." id="accumulator" />
+        <Buyable label="Accu." id="accumulator" />
       </div>
     );
   }
@@ -427,14 +479,17 @@ class ActionMenu extends Component {
   };
   render() {
     const { game, action } = this.props;
-    const opened = game.actionMenuOpened;
+    const { actionMenuOpened, createMode } = game;
     return (
-      <div className={"action-menu " + (opened ? "opened" : "")}>
+      <div className={"action-menu " + (actionMenuOpened ? "opened" : "")}>
         <div className="body">
-          {opened ? <ActionMenuGeneral game={game} action={action} /> : null}
+          <ActionMenuGeneral game={game} action={action} />
         </div>
-        <div className="opener" onClick={opened ? this.close : this.open}>
-          +
+        <div
+          className="opener"
+          onClick={actionMenuOpened ? this.close : this.open}
+        >
+          {modeLetters[createMode] || "+"}
         </div>
       </div>
     );

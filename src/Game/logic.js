@@ -156,7 +156,7 @@ export function create(
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const n = simplex.noise2D(x, y);
-      energyMap[y * width + x] = Math.floor(256 * Math.pow((1 + n) / 2, 2));
+      energyMap[y * width + x] = n <= 0 ? 0 : Math.floor(256 * Math.pow(n, 2));
       if (!inRect(safeArea, { x, y })) {
         if (n < -0.8) {
           markets.push({
@@ -235,7 +235,7 @@ export function create(
     opened: null,
     hoverCell: null,
     downAt: null,
-    actionMenuOpened: false,
+    actionMenuOpened: true,
     state: "running",
     width,
     height,
@@ -243,8 +243,31 @@ export function create(
     golds: 250,
     conf,
     base,
-    trains: [],
-    tracks: [],
+    trains: [
+      {
+        trackId: 0,
+        dir: 0,
+        golds: 0,
+        energy: 0,
+        levels: {
+          consumption: 0,
+          goldCapacity: 0,
+          energyCapacity: 0
+        }
+      }
+    ],
+    tracks: [
+      {
+        type: 0,
+        x: base.x,
+        y: base.y
+      },
+      {
+        type: 0,
+        x: base.x - 1,
+        y: base.y
+      }
+    ],
     accumulators: [],
     mines,
     miners: [],
@@ -253,7 +276,11 @@ export function create(
 }
 
 export function tick(previousState: GameState): GameState {
+  if (previousState.opened && previousState.opened.type === "help") {
+    return previousState;
+  }
   if (previousState.energy === 0) return previousState;
+  if (previousState.state !== "running") return previousState;
   const g = { ...previousState };
   const { conf } = g;
   g.tickIndex++;
@@ -386,6 +413,7 @@ export function tick(previousState: GameState): GameState {
   if (g.energy <= 0) {
     g.energy = 0;
     g.state = "gameover";
+    g.opened = { type: "gameOver" };
     return g;
   }
   return g;
@@ -489,11 +517,6 @@ export function tradeMarket(
   market[otherCur] += value * lvls.trading.value;
   return g;
 }
-
-export const createMode = (state: GameState, createMode: ?string) => ({
-  ...state,
-  createMode
-});
 
 export function getCost(
   state: GameState,
@@ -619,7 +642,11 @@ function addMinerIfPossible(state, pos) {
 }
 
 export function mouseDown(g: GameState, downAt: *): GameState {
-  if (g.createMode === "track" && !g.tracks.find(t => samePos(t, downAt))) {
+  if (
+    downAt &&
+    g.createMode === "track" &&
+    !g.tracks.find(t => samePos(t, downAt))
+  ) {
     const track = { ...downAt, type: 2 };
     const maybeNewGame = addTrackIfPossible(g, track);
     if (maybeNewGame) {
@@ -639,7 +666,7 @@ export function mouseMove(g: GameState, hoverCell: *): GameState {
     // mouse didn't changed
     return g;
   }
-  if (g.downAt) {
+  if (hoverCell && g.downAt) {
     if (g.createMode === "track") {
       const existingTrack = g.tracks.find(t => samePos(t, hoverCell));
       const previousTrack = g.tracks.find(t => samePos(t, g.hoverCell));
@@ -782,6 +809,12 @@ export function mouseUp(g: GameState): GameState {
 export function mouseLeave(state: GameState): GameState {
   return { ...state, downAt: null, hoverCell: null };
 }
+
+export const createMode = (state: GameState, createMode: ?string) => ({
+  ...state,
+  createMode,
+  actionMenuOpened: false
+});
 
 export const close = (state: GameState): GameState => ({
   ...state,

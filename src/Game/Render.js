@@ -10,31 +10,67 @@ function threshold(value, limit) {
   return value;
 }
 
+const ObjectFlag = {
+  NOTHING: 0,
+  MINE: 1,
+  ACCUMULATOR: 2,
+  MARKET: 3
+};
+
 class Game extends Component {
   onRef = (canvas: *) => {
     this.canvas = canvas;
   };
 
+  rot = mat3.create();
+  origin = null;
   mouseDown = null;
   keys = {};
 
-  pos = e => {
+  _pos = e => {
     const rect = this.canvas.getBoundingClientRect();
     return [e.clientX - rect.left, e.clientY - rect.top];
   };
 
-  onMouseDown = e => {
-    this.mouseAt = this.mouseDown = this.pos(e);
+  pos = e => {
+    const { canvas, origin } = this;
+    const rect = canvas.getBoundingClientRect();
+    const aspect = rect.width / rect.height;
+    const uv = [
+      2 * aspect * (e.clientX - rect.left) / rect.width - 1,
+      1 - 2 * (e.clientY - rect.top) / rect.height,
+      2.5
+    ];
+    const direction = vec3.create();
+    vec3.transformMat3(direction, uv, this.rot);
+    if (direction[1] >= 0) return null;
+    const k = -origin[1] / direction[1];
+    const x = origin[0] + k * direction[0];
+    const z = origin[2] + k * direction[2];
+    const { game } = this.props;
+    const pos = { x: Math.floor(x), y: game.height - Math.floor(z) - 1 };
+    return pos.x < 0 || pos.y < 0 || pos.x >= game.width || pos.y >= game.height
+      ? null
+      : pos;
   };
-  onMouseMove = e => {
-    this.mouseAt = this.pos(e);
+
+  onMouseDown = (e: *) => {
+    //this.mouseAt = this.mouseDown = this._pos(e);
+    this.props.action("mouseDown", this.pos(e));
+  };
+  onMouseMove = (e: *) => {
+    //this.mouseAt = this._pos(e);
+    this.props.action("mouseMove", this.pos(e));
   };
   onMouseUp = () => {
-    this.mouseDown = null;
+    //this.mouseDown = null;
+    this.props.action("mouseUp");
   };
   onMouseLeave = () => {
-    this.mouseDown = null;
+    //this.mouseDown = null;
+    this.props.action("mouseLeave");
   };
+
   onKeyUp = e => {
     this.keys[e.which] = 0;
   };
@@ -42,24 +78,26 @@ class Game extends Component {
     this.keys[e.which] = 1;
   };
   componentDidMount() {
-    const { width, height } = this.props;
+    const { canvas, rot } = this;
+    const { game, width, height } = this.props;
     for (let k = 0; k < 500; k++) {
       this.keys[k] = 0;
     }
     document.body.addEventListener("keyup", this.onKeyUp);
     document.body.addEventListener("keydown", this.onKeyDown);
-    const { canvas } = this;
     const gl =
       canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
     const regl = createREGL(gl);
-    const rot = mat3.create();
     let render = renderShader(regl);
     const mapSize = 12;
-    let energyMap = regl.texture();
+    const energyMap = regl.texture();
+    const dataMap = regl.texture();
+    const dataMapData = new Uint8Array(game.width * game.height * 4);
 
-    const origin = [1, 1, 1];
-    let rotX = 0;
-    let rotY = Math.PI / 4;
+    const origin = [game.width / 2, 12, 1];
+    this.origin = origin;
+    let rotX = -1.4;
+    let rotY = 0;
     let debugPlaneOn = false;
     let debugPlaneY = 0;
     let debugStepping = 0.1;
@@ -77,11 +115,62 @@ class Game extends Component {
       const { mouseDown, mouseAt, keys } = this;
       const { game } = this.props;
 
-      energyMap({
-        width: game.width,
-        height: game.height,
-        data: game.energyMap,
-        format: "luminance"
+      // filling the game data
+      // data format:
+      // r: the track infos
+      // g: the object type on this cell
+      // b: miner object (g is already the mine)
+      // a: train object type
+      if (dataMapData.fill) {
+        dataMapData.fill(0);
+      } else {
+        for (let i = 0; i < dataMapData.length; i++) {
+          dataMapData[i] = 0;
+        }
+      }
+      const arrayIndex = (x, y) => 4 * (x + game.width * y);
+      game.tracks.forEach(({ x, y, type }) => {
+        let drawLeft = 0,
+          drawDown = 0,
+          drawUp = 0,
+          drawRight = 0;
+        if (type === 2) {
+          const left = game.tracks.find(t => t.x === x - 1 && t.y === y);
+          const right = game.tracks.find(t => t.x === x + 1 && t.y === y);
+          const up = game.tracks.find(t => t.x === x && t.y + 1 === y);
+          const down = game.tracks.find(t => t.x === x && t.y - 1 === y);
+          if (up && up.type !== 0) drawUp = 1;
+          if (down && down.type !== 0) drawDown = 1;
+          if (left && left.type !== 1) drawLeft = 1;
+          if (right && right.type !== 1) drawRight = 1;
+        }
+        dataMapData[arrayIndex(x, y)] =
+          (1 << 7) |
+          (type << 5) |
+          (drawUp << 4) |
+          (drawRight << 3) |
+          (drawDown << 2) |
+          (drawLeft << 1);
+      });
+      game.trains.forEach(t => {
+        const track = game.tracks[t.trackId];
+        if (!track) return;
+        dataMapData[arrayIndex(track.x, track.y) + 3] = (t.dir << 6) | 1;
+      });
+      game.mines.forEach(mine => {
+        dataMapData[arrayIndex(mine.x, mine.y) + 1] = ObjectFlag.MINE << 5;
+      });
+      // miners override mines because we know there is a mine anyway
+      game.miners.forEach(miner => {
+        const mine = game.mines[miner.mineId];
+        if (!mine) return;
+        dataMapData[arrayIndex(mine.x, mine.y) + 2] = 1 << 7;
+      });
+      game.accumulators.forEach(a => {
+        dataMapData[arrayIndex(a.x, a.y) + 1] = ObjectFlag.ACCUMULATOR << 5;
+      });
+      game.markets.forEach(m => {
+        dataMapData[arrayIndex(m.x, m.y) + 1] = ObjectFlag.MARKET << 5;
       });
 
       if (mouseDown && !stateAtMouseDown) {
@@ -90,26 +179,10 @@ class Game extends Component {
         stateAtMouseDown = null;
       }
 
-      /*
-      // some test
-      const x = Math.floor(origin[0]);
-      const y = Math.floor(origin[2]);
-      if (x >= 0 && y >= 0 && x < 32 && y < 32) {
-        map.subimage(
-          {
-            width: 1,
-            height: 1,
-            data: [0, 0, 0, 0]
-          },
-          x,
-          y
-        );
-      }
-      */
-
       let move = [0, 0, 0];
 
       // keyboard
+      /*
       const keyUpDelta =
         (keys[38] || keys[87] || keys[90]) - (keys[40] || keys[83]);
       const keyRightDelta =
@@ -126,6 +199,7 @@ class Game extends Component {
           move[2] += 0.1 * keyUpDelta;
         }
       }
+      */
 
       // mouse
       if (mouseDown) {
@@ -180,9 +254,25 @@ class Game extends Component {
       const vector = vec3.create();
       vec3.transformMat3(vector, move, rot);
       vec3.add(origin, origin, vector);
+
+      /*
       origin[0] = Math.min(Math.max(0.6, origin[0]), mapSize);
       origin[1] = Math.min(Math.max(0.6, origin[1]), mapSize);
       origin[2] = Math.min(Math.max(0.6, origin[2]), mapSize);
+      */
+
+      energyMap({
+        width: game.width,
+        height: game.height,
+        data: game.energyMap,
+        format: "luminance"
+      });
+
+      dataMap({
+        data: dataMapData,
+        width: game.width,
+        height: game.height
+      });
 
       regl.clear({
         color: [0, 0, 0, 0],
@@ -191,6 +281,7 @@ class Game extends Component {
       render({
         time,
         energyMap,
+        dataMap,
         rot,
         debugPlaneY,
         debugPlaneOn,
@@ -198,6 +289,12 @@ class Game extends Component {
         size: [game.width, game.height],
         aspect: width / height,
         origin,
+        base: [game.base.x, game.base.y, game.base.w, game.base.h],
+        mouse: (!game.hoverCell
+          ? [250, 250]
+          : [game.hoverCell.x, game.hoverCell.y]).concat(
+          !game.mouseAt ? [250, 250] : [game.mouseAt.x, game.mouseAt.y]
+        ),
         color: [
           Math.cos(time * 0.1),
           Math.sin(time * 0.8),

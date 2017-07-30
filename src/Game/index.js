@@ -21,7 +21,7 @@ if (module.hot) {
 
 class GameComponent extends Component {
   state = {
-    game: GameLogic.create(12, 12, 0)
+    game: GameLogic.create(8, 8, 0)
   };
 
   componentDidMount() {
@@ -49,6 +49,7 @@ class GameComponent extends Component {
     const { game } = this.state;
     const newGameState = GameLogic[name](game, ...value);
     if (newGameState !== game) {
+      console.log("GameLogic." + name, ...value);
       this.setState({ game: newGameState });
     }
   };
@@ -61,6 +62,15 @@ class GameComponent extends Component {
     const GameRender = debug ? RenderDebug : Render;
     return (
       <div style={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}>
+        <div style={{ width, height }} className="game">
+          <Render
+            game={game}
+            action={this.action}
+            width={width}
+            height={height}
+          />
+          <UI game={game} action={this.action} width={width} height={height} />
+        </div>
         {debug
           ? <div style={{ width, height }} className="game">
               <GameRender
@@ -77,15 +87,6 @@ class GameComponent extends Component {
               />
             </div>
           : null}
-        <div style={{ width, height }} className="game">
-          <Render
-            game={game}
-            action={this.action}
-            width={width}
-            height={height}
-          />
-          <UI game={game} action={this.action} width={width} height={height} />
-        </div>
       </div>
     );
   }

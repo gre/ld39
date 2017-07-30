@@ -169,10 +169,6 @@ class Base extends PureComponent {
 }
 
 class RenderDebug extends Component {
-  state = {
-    hoverCell: null,
-    downAt: null
-  };
   pos = (e: *) => {
     const { game, width, height } = this.props;
     const rect = this.refs.root.getBoundingClientRect();
@@ -218,11 +214,6 @@ class RenderDebug extends Component {
         onMouseLeave={this.onMouseLeave}
       >
         <rect fill="#eee" width={width} height={height} />
-        {game.hoverCell
-          ? <Cell {...game.hoverCell}>
-              <rect width={1} height={1} fill="#000" opacity={0.1} />
-            </Cell>
-          : null}
         {/*[...game.energyMap].map((v, i) => {
           const x = i % game.width;
           const y = (i - x) / game.width;
@@ -273,6 +264,11 @@ class RenderDebug extends Component {
         <Cell x={game.base.x} y={game.base.y}>
           <Base base={game.base} />
         </Cell>
+        {game.hoverCell
+          ? <Cell {...game.hoverCell}>
+              <rect width={1} height={1} fill="#000" opacity={0.1} />
+            </Cell>
+          : null}
       </svg>
     );
   }

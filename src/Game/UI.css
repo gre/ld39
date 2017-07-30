@@ -84,6 +84,12 @@
   cursor: pointer;
   user-select: none;
 }
+.ui .action-menu .body {
+  display: none;
+}
+.ui .action-menu.opened .body {
+  display: block;
+}
 .ui .action-menu.opened .opener {
   border-top-right-radius: 0;
   border-top-left-radius: 0;
