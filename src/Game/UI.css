@@ -1,0 +1,150 @@
+.ui {
+  color: #333;
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 14px;
+}
+
+.ui .main-bar {
+  position: absolute;
+  left: 2%;
+  bottom: 0.7em;
+  height: 3.4em;
+  width: 96%;
+  border-radius: 2em;
+  box-sizing: border-box;
+  padding-left: 4em;
+  background: #ddd;
+  overflow: hidden;
+  opacity: 0.8;
+  pointer-events: none;
+}
+.ui .main-bar .resources {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 2;
+  color: #fc9;
+}
+.ui .main-bar .energy {
+  word-wrap: nowrap;
+}
+.ui .main-bar .golds {
+  word-wrap: nowrap;
+}
+.ui .main-bar .energy-attack-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.ui .main-bar .energy-attack-bar .energy-attack-text {
+  position: absolute;
+  top: 1em;
+  right: 1em;
+  font-size: 1em;
+  color: #e00;
+}
+
+.ui .btn {
+  display: inline-block;
+  font-size: 12px;
+  margin: 0.4em;
+  padding: 0.2em 0.8em;
+  color: #444;
+  border: #ddd 1px solid;
+  background: #eee;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+.ui .btn.disabled {
+  opacity: 0.4;
+}
+.ui .btn.active {
+  color: #000;
+  background: #999;
+}
+
+.ui .action-menu {
+  position: absolute;
+  left: 1em;
+  bottom: 1em;
+  z-index: 1;
+}
+.ui .action-menu .opener {
+  background: #fc0;
+  color: #000;
+  font-weight: bold;
+  font-size: 1.8em;
+  padding: 0.2em 0.4em;
+  border-radius: 1em;
+  display: inline-block;
+  cursor: pointer;
+  user-select: none;
+}
+.ui .action-menu.opened .opener {
+  border-top-right-radius: 0;
+  border-top-left-radius: 0;
+}
+.ui .action-menu.opened .opener,
+.ui .action-menu-general {
+  background: #ccc;
+}
+
+.ui .action-menu-general {
+  display: flex;
+  flex-direction: column;
+}
+
+.ui .action-menu-general .sep {
+  margin: 5px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.ui .layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.ui .layer .clickout {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.ui .popup {
+  position: absolute;
+  z-index: 1;
+  top: 10%;
+  left: 10%;
+  width: 80%;
+  height: 70%;
+  background: #eee;
+  border: #666 solid 1px;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.ui .popup h2 {
+  padding: 0;
+  margin: 0;
+  margin-bottom: 10px;
+}
+
+.ui .popup .close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  user-select: none;
+}
