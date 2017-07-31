@@ -6,6 +6,14 @@ This is a game made in 48 hours in the LudumDare gamejam.
 - [COMPO version](https://gre-ld39.surge.sh/) of the game (original version made alone in 48 hours) (frozen source code is in `compo` branch)
 - [LATEST version](https://the-cube.surge.sh/) of the game (out of competition)
 
+## quick postmortem
+
+That was some fun 48 hours, i'm satisfied by the actual game logic and mechanism implemented, however i'm disappointed by my graphics state, I expected to implement WAY MORE VISUALS so the game teach your more about things going on... because of this lack of good graphics, the game is probably not straightforward and confusing at the moment. I might try to fix that by experimenting some more Signed Distance Functions – I see potential of stunning effects.
+
+I probably should have dropped some game features in favor of doing more graphics. it's always tricky to prioritize things. If I had started with graphics first, I probably would have not a game but just a demo 3D scene 🤣.
+
+This was a teaching experience and I'm probably going to re-use some technical paradigm for entering the incoming http://js13kgames.com/.
+
 ## Technical innovation
 
 source code: https://github.com/gre/ld39/tree/master/src/Game
@@ -52,6 +60,8 @@ if (module.hot) {
   });
 }
 ```
+
+There is one thing that I missed to add in the current game: an interpolation between 2 game states. Because the game runs at 2 tick per second, the current animation sucks but I'm thinking it would be easy to add linear interpolation that is just like `lerp(gameState, tick(gameState), percentToNextTick)`.
 
 ### Signed Distance Functions (aka raymarching a distance func)
 
