@@ -310,7 +310,7 @@ class Game extends Component {
   }
   render() {
     const { width, height } = this.props;
-    const dpr = 1; //window.devicePixelRatio || 1;
+    const dpr = window.devicePixelRatio || 1;
     return (
       <canvas
         ref={this.onRef}
