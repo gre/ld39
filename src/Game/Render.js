@@ -59,6 +59,7 @@ class Game extends Component {
   };
 
   onMouseDown = (e: *) => {
+    e.preventDefault();
     //this.mouseAt = this.mouseDown = this._pos(e);
     this.props.action("mouseDown", this.pos(e));
   };

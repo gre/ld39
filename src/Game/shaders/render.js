@@ -206,7 +206,7 @@ vec2 board (vec3 position) {
 
   if (all(lessThanEqual(vec2(0.0), id.xz)) && all(lessThan(id.xz, size))) {
     vec2 gameP = id.xz;
-    vec2 gamePNormalized = gameP / size;
+    vec2 gamePLookup = (gameP+0.5) / size;
     float cur = mouse.xy == gameP ? 1.0 : 0.0;
     res = opUs(0.1, res, vec2(sdBox(p-vec3(-0.5, -0.1*(1.0+cur), -0.5), vec3(1.0, 0.1, 1.0)), 0.3 + 0.02 * mod(id.x+id.z, 2.0) - 0.05 * cur ));
 
@@ -221,8 +221,8 @@ vec2 board (vec3 position) {
     // objs
     p = position;
     id = opRep(p, vec3(1.0, 0.0, 1.0));
-    vec4 env = texture2DOrBlack(energyMap, gamePNormalized);
-    vec4 obj = texture2DOrBlack(dataMap, gamePNormalized);
+    vec4 env = texture2DOrBlack(energyMap, gamePLookup);
+    vec4 obj = texture2DOrBlack(dataMap, gamePLookup);
 
     float r = 0.2/(0.01+env.r);
     float energyRain = mod(p.y + time, r);
