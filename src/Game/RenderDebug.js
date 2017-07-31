@@ -1,10 +1,8 @@
 //@flow
 import React, { Component, PureComponent } from "react";
-import { getCost, affordable } from "./logic";
 
 class Market extends PureComponent {
   render() {
-    const { mine } = this.props;
     return (
       <g transform={`translate(0,0)`}>
         <rect width={1} height={1} fill="#93c" />
@@ -38,19 +36,6 @@ class Mine extends PureComponent {
     return (
       <g transform={`translate(0,0)`}>
         <rect width={1} height={1} fill="#333" />
-        {Array(10)
-          .fill(null)
-          .map((_, i) =>
-            <rect
-              key={i}
-              width={0.05}
-              height={0.05}
-              x={0.1 + 0.8 * Math.random()}
-              y={0.1 + 0.8 * Math.random()}
-              fill="#fc0"
-              opacity={0.5}
-            />
-          )}
         <text
           x={0.5}
           y={0.5}
@@ -192,7 +177,7 @@ class RenderDebug extends Component {
     this.props.action("mouseLeave");
   };
   render() {
-    const { game, width, height, action } = this.props;
+    const { game, width, height } = this.props;
     const cellW = width / game.width;
     const cellH = height / game.height;
     const Cell = ({ x, y, children }) =>

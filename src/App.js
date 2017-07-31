@@ -3,7 +3,7 @@ import Game from "./Game";
 
 class App extends Component {
   render() {
-    return <Game />;
+    return <Game debug={process.env.NODE_ENV === "development"} />;
   }
 }
 

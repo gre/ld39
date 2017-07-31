@@ -39,6 +39,7 @@ const cellDir = ({ x, y }, dir) => {
     case 3:
       y--;
       break;
+    default:
   }
   return { x, y };
 };
@@ -99,32 +100,6 @@ function genAttackLevel(startTime, level) {
     duration,
     energy
   };
-}
-
-function genMines(count, width, height) {
-  return [
-    {
-      x: 1,
-      y: 1,
-      golds: 10000
-    }
-  ];
-}
-
-function genMarkets(count, width, height) {
-  return [
-    {
-      x: 6,
-      y: 0,
-      golds: 0,
-      energy: 0,
-      levels: {
-        goldCapacity: 0,
-        energyCapacity: 0,
-        trading: 0
-      }
-    }
-  ];
 }
 
 export function create(level: number): GameState {
@@ -238,10 +213,7 @@ export function create(level: number): GameState {
     tickIndex: 0,
     attackLevel: genAttackLevel(0, 0),
     createMode: null,
-    opened:
-      false && process.env.NODE_ENV === "development"
-        ? null
-        : { type: "start" },
+    opened: process.env.NODE_ENV === "development" ? null : { type: "start" },
     hoverCell: null,
     downAt: null,
     actionMenuOpened: false,

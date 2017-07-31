@@ -4,6 +4,25 @@ import "./UI.css";
 import { affordable, getCost } from "./logic";
 import KeyHandler from "react-key-handler";
 
+class EnergyIcon extends Component {
+  render() {
+    return (
+      <span role="img" aria-label="energy">
+        ⚡️
+      </span>
+    );
+  }
+}
+class GoldIcon extends Component {
+  render() {
+    return (
+      <span role="img" aria-label="gold">
+        💰
+      </span>
+    );
+  }
+}
+
 class Bar extends PureComponent {
   static defaultProps = {
     color: "#fc3",
@@ -66,7 +85,7 @@ class Upgrade extends Component {
         {levelInfo.upgrade
           ? <Button onClick={onClick}>
               <span style={style}>
-                💰 {levelInfo.upgrade}
+                <GoldIcon /> {levelInfo.upgrade}
               </span>
             </Button>
           : <div style={style}>MAX</div>}
@@ -144,26 +163,39 @@ class OpenedTrain extends Component {
           Train {id + 1}
         </h2>
         <p className="description">
-          A Train follow the Tracks to convey 💰 and ⚡️ to Base. It loads ⚡️
-          when under an Accumulator, 💰 when nearby a Mine. It unloads when on
-          the Base.
+          A Train follow the Tracks to convey <GoldIcon /> and <EnergyIcon /> to
+          Base. It loads <EnergyIcon />
+          when under an Accumulator, <GoldIcon /> when nearby a Mine. It unloads
+          when on the Base.
         </p>
         <div className="improvments">
           <Field
-            label="⚡️ consumption"
+            label={
+              <span>
+                <EnergyIcon /> consumption
+              </span>
+            }
             levelInfo={lvls.consumption}
             onUpgrade={() => action("upgradeTrain", id, "consumption")}
             level={train.levels.consumption}
           />
           <Field
-            label="⚡️ capacity"
+            label={
+              <span>
+                <EnergyIcon /> capacity
+              </span>
+            }
             value={train.energy}
             levelInfo={lvls.energyCapacity}
             onUpgrade={() => action("upgradeTrain", id, "energyCapacity")}
             level={train.levels.energyCapacity}
           />
           <Field
-            label="💰 capacity"
+            label={
+              <span>
+                <GoldIcon /> capacity
+              </span>
+            }
             value={train.golds}
             levelInfo={lvls.goldCapacity}
             onUpgrade={() => action("upgradeTrain", id, "goldCapacity")}
@@ -188,7 +220,7 @@ class OpenedMiner extends Component {
         </h2>
         {mine
           ? <p>
-              💰 {mine.golds.toFixed(0)} to mine.
+              <GoldIcon /> {mine.golds.toFixed(0)} to mine.
             </p>
           : null}
         <div className="improvments">
@@ -199,13 +231,21 @@ class OpenedMiner extends Component {
             level={miner.levels.speed}
           />
           <Field
-            label="⚡️ consumption"
+            label={
+              <span>
+                <EnergyIcon /> consumption
+              </span>
+            }
             levelInfo={lvls.consumption}
             onUpgrade={() => action("upgradeMiner", id, "consumption")}
             level={miner.levels.consumption}
           />
           <Field
-            label="💰 capacity"
+            label={
+              <span>
+                <GoldIcon /> capacity
+              </span>
+            }
             value={miner.golds}
             levelInfo={lvls.capacity}
             onUpgrade={() => action("upgradeMiner", id, "capacity")}
@@ -219,9 +259,8 @@ class OpenedMiner extends Component {
 
 class OpenedMine extends Component {
   render() {
-    const { game, opened: { id }, action } = this.props;
+    const { game, opened: { id } } = this.props;
     const mine = game.mines[id];
-    console.log(mine);
     return (
       <div>
         <h2>
@@ -231,7 +270,7 @@ class OpenedMine extends Component {
           This is a Gold Mine, add a <strong>M</strong>iner to mine it.
         </div>
         <p>
-          💰 {mine.golds.toFixed(0)} to mine.
+          <GoldIcon /> {mine.golds.toFixed(0)} to mine.
         </p>
       </div>
     );
@@ -246,12 +285,16 @@ class OpenedBase extends Component {
       <div>
         <h2>Base</h2>
         <div className="description">
-          This is your Base. Trains unload the conveyed 💰 and ⚡️ when they pass
-          on it.
+          This is your Base. Trains unload the conveyed <GoldIcon /> and{" "}
+          <EnergyIcon /> when they pass on it.
         </div>
         <div className="improvments">
           <Field
-            label="⚡️ Power"
+            label={
+              <span>
+                <EnergyIcon /> Power
+              </span>
+            }
             description="Do Not Run Out Of POWER !!!"
             value={game.energy}
             levelInfo={lvls.capacity}
@@ -276,7 +319,11 @@ class OpenedAccumulator extends Component {
         </h2>
         <div className="improvments">
           <Field
-            label="⚡️ capacity"
+            label={
+              <span>
+                <EnergyIcon /> capacity
+              </span>
+            }
             value={accumulator.energy}
             levelInfo={lvls.capacity}
             onUpgrade={() => action("upgradeAccumulator", id, "capacity")}
@@ -293,14 +340,14 @@ class OpenedMarket extends Component {
     const { game, opened: { id }, action } = this.props;
     const market = game.markets[id];
     const lvls = getLevels(game, market, "market");
-    const currencyLabels = { energy: "⚡️", golds: "💰" };
+    const currencyLabels = { energy: <EnergyIcon />, golds: <GoldIcon /> };
     return (
       <div>
         <h2>
           Market {id + 1}
         </h2>
         <div className="description">
-          Trade ⚡️ and 💰. Train must collect them.
+          Trade <EnergyIcon /> and <GoldIcon />. Train must collect them.
         </div>
         <div className="improvments">
           <Field
@@ -311,14 +358,22 @@ class OpenedMarket extends Component {
             level={market.levels.trading}
           />
           <Field
-            label="⚡️ capacity"
+            label={
+              <span>
+                <EnergyIcon /> capacity
+              </span>
+            }
             value={market.energy}
             levelInfo={lvls.energyCapacity}
             onUpgrade={() => action("upgradeTrain", id, "energyCapacity")}
             level={market.levels.energyCapacity}
           />
           <Field
-            label="💰 capacity"
+            label={
+              <span>
+                <GoldIcon /> capacity
+              </span>
+            }
             value={market.golds}
             levelInfo={lvls.goldCapacity}
             onUpgrade={() => action("upgradeTrain", id, "goldCapacity")}
@@ -536,7 +591,7 @@ class ActionMenuGeneral extends Component {
           disabled={!affordable(game, cost)}
         >
           <strong>{label[0]}</strong>
-          {label.slice(1)} (💰 {cost})
+          {label.slice(1)} (<GoldIcon /> {cost})
         </CreateModeButton>
       );
     };
@@ -554,13 +609,6 @@ class ActionMenuGeneral extends Component {
         <Buyable label="Accu." id="accumulator" />
       </div>
     );
-  }
-}
-
-// TODO
-class SpeedControl extends Component {
-  render() {
-    return null;
   }
 }
 
@@ -600,10 +648,12 @@ class MainBar extends Component {
       <div className="main-bar">
         <div className="resources">
           <span className="energy">
-            {"⚡️ " + game.energy.toFixed(0)}
+            <EnergyIcon />
+            {" " + game.energy.toFixed(0)}
           </span>
           <span className="golds">
-            {"💰 " + game.golds.toFixed(0)}
+            <GoldIcon />
+            {" " + game.golds.toFixed(0)}
           </span>
         </div>
         <div className="energy-attack-bar">
@@ -625,7 +675,7 @@ class MainBar extends Component {
 
 export default class UI extends PureComponent {
   render() {
-    const { game, action, width, height } = this.props;
+    const { game, action } = this.props;
     return (
       <div className="ui">
         <ActionMenu game={game} action={action} />

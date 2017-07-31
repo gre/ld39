@@ -94,7 +94,6 @@ class Game extends Component {
       canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
     const regl = createREGL(gl);
     let render = renderShader(regl);
-    const mapSize = 12;
     const energyMap = regl.texture();
     const dataMap = regl.texture();
     const dataMapData = new Uint8Array(game.width * game.height * 4);
@@ -117,7 +116,7 @@ class Game extends Component {
     let previousButtons3Pressed = false;
 
     regl.frame(({ time }) => {
-      const { mouseDown, mouseAt, keys } = this;
+      const { mouseDown, mouseAt } = this;
       const { game } = this.props;
 
       // filling the game data
@@ -259,12 +258,6 @@ class Game extends Component {
       const vector = vec3.create();
       vec3.transformMat3(vector, move, rot);
       vec3.add(origin, origin, vector);
-
-      /*
-      origin[0] = Math.min(Math.max(0.6, origin[0]), mapSize);
-      origin[1] = Math.min(Math.max(0.6, origin[1]), mapSize);
-      origin[2] = Math.min(Math.max(0.6, origin[2]), mapSize);
-      */
 
       energyMap({
         width: game.width,
