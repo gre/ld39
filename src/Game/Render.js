@@ -48,7 +48,11 @@ class Game extends Component {
     const x = origin[0] + k * direction[0];
     const z = origin[2] + k * direction[2];
     const { game } = this.props;
-    const pos = { x: Math.floor(x), y: game.height - Math.floor(z) - 1 };
+
+    const pos = {
+      x: Math.floor(x * game.width / 8),
+      y: Math.floor((8 - z) * game.height / 8)
+    };
     return pos.x < 0 || pos.y < 0 || pos.x >= game.width || pos.y >= game.height
       ? null
       : pos;
@@ -94,7 +98,7 @@ class Game extends Component {
     const dataMap = regl.texture();
     const dataMapData = new Uint8Array(game.width * game.height * 4);
 
-    const origin = [game.width / 2, 12, 1];
+    const origin = [4, 12, 1];
     this.origin = origin;
     let rotX = -1.4;
     let rotY = 0;

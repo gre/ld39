@@ -145,6 +145,10 @@
   margin-bottom: 10px;
 }
 
+.ui .popup .body {
+  overflow: auto;
+}
+
 .ui .popup .close {
   position: absolute;
   top: 0;
@@ -153,4 +157,18 @@
   font-weight: bold;
   cursor: pointer;
   user-select: none;
+}
+
+.ui .popup .description {
+  font-size: 0.9em;
+  padding: 0.4em 0 0.4em 0.5em;
+  margin-bottom: 0.5em;
+  border-left: 2px solid #ccc;
+  color: #999;
+  font-style: italic;
+}
+
+.ui .popup .improvments {
+  margin: 0.2em 0;
+  background: #fff;
 }

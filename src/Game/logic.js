@@ -127,11 +127,9 @@ function genMarkets(count, width, height) {
   ];
 }
 
-export function create(
-  width: number,
-  height: number,
-  difficulty: number
-): GameState {
+export function create(level: number): GameState {
+  const width = 8 + 2 * level;
+  const height = width;
   const base = {
     x: Math.floor((width - 1) / 2),
     y: Math.floor((height - 1) / 2),
@@ -141,45 +139,52 @@ export function create(
       capacity: 0
     }
   };
-  const mines = [];
-  const markets = [];
   const energyMap = new Uint8Array(width * height);
   const simplex = new SimplexNoise();
 
+  const sd = Math.floor((8 + 2 * level) / 4.1);
   const safeArea = {
-    x: base.x - 2,
-    y: base.y - 2,
-    w: base.w + 4,
-    h: base.h + 4
+    x: base.x - sd,
+    y: base.y - sd,
+    w: base.w + 2 * sd,
+    h: base.h + 2 * sd
   };
 
+  const spots = [];
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const n = simplex.noise2D(x, y);
-      energyMap[y * width + x] = n <= 0 ? 0 : Math.floor(256 * Math.pow(n, 2));
-      if (!inRect(safeArea, { x, y })) {
-        if (n < -0.8) {
-          markets.push({
-            x,
-            y,
-            golds: 0,
-            energy: 0,
-            levels: {
-              goldCapacity: 0,
-              energyCapacity: 0,
-              trading: 0
-            }
-          });
-        } else if (n > 0.5) {
-          mines.push({
-            x,
-            y,
-            golds: 10000
-          });
-        }
+      const spot = { x, y, n };
+      energyMap[y * width + x] = Math.floor(256 * Math.pow(Math.max(0, n), 2));
+      if (!inRect(safeArea, spot)) {
+        spots.push(spot);
       }
     }
   }
+  spots.sort((a, b) => a.n - b.n);
+
+  const nbMines = Math.floor(
+    spots.length * 0.5 * (1 - Math.pow(0.9, level + 1)) +
+      4 * Math.random() * Math.random()
+  );
+  const mines = spots.splice(0, nbMines).map(({ x, y }) => ({
+    x,
+    y,
+    golds: 10000 * (0.4 * Math.random() + 0.2 + 0.5 / (1 + level))
+  }));
+
+  const nbMarkets = Math.floor(1 + 3 * Math.random() * Math.random());
+  const markets = spots.splice(0, nbMarkets).map(({ x, y }) => ({
+    x,
+    y,
+    golds: 0,
+    energy: 0,
+    levels: {
+      goldCapacity: 0,
+      energyCapacity: 0,
+      trading: 0
+    }
+  }));
 
   const conf = {
     goldsIncrease: 0.2,
@@ -227,15 +232,19 @@ export function create(
     }
   };
   return {
+    level,
     energyMap,
     tickRefreshRate: 500,
     tickIndex: 0,
     attackLevel: genAttackLevel(0, 0),
     createMode: null,
-    opened: null,
+    opened:
+      false && process.env.NODE_ENV === "development"
+        ? null
+        : { type: "start" },
     hoverCell: null,
     downAt: null,
-    actionMenuOpened: true,
+    actionMenuOpened: false,
     state: "running",
     width,
     height,
@@ -275,11 +284,22 @@ export function create(
   };
 }
 
+export function restart(gameState: GameState): GameState {
+  return {
+    ...create(gameState.level),
+    opened: null,
+    actionMenuOpened: true
+  };
+}
+
 export function tick(previousState: GameState): GameState {
-  if (previousState.opened && previousState.opened.type === "help") {
+  if (
+    previousState.opened &&
+    (previousState.opened.type === "help" ||
+      previousState.opened.type === "start")
+  ) {
     return previousState;
   }
-  if (previousState.energy === 0) return previousState;
   if (previousState.state !== "running") return previousState;
   const g = { ...previousState };
   const { conf } = g;
@@ -819,7 +839,7 @@ export const createMode = (state: GameState, createMode: ?string) => ({
 export const close = (state: GameState): GameState => ({
   ...state,
   opened: null,
-  actionMenuOpened: false
+  actionMenuOpened: (state.opened && state.opened.type === "start") || false
 });
 
 export const open = (state: GameState, opened: *): GameState => ({

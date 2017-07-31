@@ -188,6 +188,7 @@ vec2 sdBase (vec3 p, vec2 sz) {
 }
 
 vec2 board (vec3 position) {
+  position.xz *= size / 8.0;
   position.z = size.y - position.z;
   float distance, distance2, materialID;
   vec3 id, p = position;

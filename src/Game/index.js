@@ -21,7 +21,7 @@ if (module.hot) {
 
 class GameComponent extends Component {
   state = {
-    game: GameLogic.create(8, 8, 0)
+    game: GameLogic.create(1)
   };
 
   componentDidMount() {
@@ -49,7 +49,9 @@ class GameComponent extends Component {
     const { game } = this.state;
     const newGameState = GameLogic[name](game, ...value);
     if (newGameState !== game) {
-      console.log("GameLogic." + name, ...value);
+      if (process.env.NODE_ENV === "development") {
+        console.log("GameLogic." + name, ...value);
+      }
       this.setState({ game: newGameState });
     }
   };

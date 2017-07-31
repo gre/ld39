@@ -64,9 +64,11 @@ class Upgrade extends Component {
           L{level + 1}
         </span>
         {levelInfo.upgrade
-          ? <div style={{ ...style, cursor: "pointer" }} onClick={onClick}>
-              💰{levelInfo.upgrade}
-            </div>
+          ? <Button onClick={onClick}>
+              <span style={style}>
+                💰 {levelInfo.upgrade}
+              </span>
+            </Button>
           : <div style={style}>MAX</div>}
       </div>
     );
@@ -94,10 +96,10 @@ class Field extends Component {
           alignItems: "center"
         }}
       >
-        <div style={{ width: "30%" }}>
-          {label}
+        <div style={{ whiteSpace: "nowrap", width: "35%" }}>
+          {label}:
         </div>
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1, marginRight: 10 }}>
           {levelInfo && value !== undefined
             ? <Bar value={value} max={levelInfo.value} height={16} />
             : <div style={{ textAlign: "center" }}>
@@ -141,26 +143,33 @@ class OpenedTrain extends Component {
         <h2>
           Train {id + 1}
         </h2>
-        <Field
-          label="⚡️ consumption"
-          levelInfo={lvls.consumption}
-          onUpgrade={() => action("upgradeTrain", id, "consumption")}
-          level={train.levels.consumption}
-        />
-        <Field
-          label="⚡️ capacity"
-          value={train.energy}
-          levelInfo={lvls.energyCapacity}
-          onUpgrade={() => action("upgradeTrain", id, "energyCapacity")}
-          level={train.levels.energyCapacity}
-        />
-        <Field
-          label="💰 capacity"
-          value={train.golds}
-          levelInfo={lvls.goldCapacity}
-          onUpgrade={() => action("upgradeTrain", id, "goldCapacity")}
-          level={train.levels.goldCapacity}
-        />
+        <p className="description">
+          A Train follow the Tracks to convey 💰 and ⚡️ to Base. It loads ⚡️
+          when under an Accumulator, 💰 when nearby a Mine. It unloads when on
+          the Base.
+        </p>
+        <div className="improvments">
+          <Field
+            label="⚡️ consumption"
+            levelInfo={lvls.consumption}
+            onUpgrade={() => action("upgradeTrain", id, "consumption")}
+            level={train.levels.consumption}
+          />
+          <Field
+            label="⚡️ capacity"
+            value={train.energy}
+            levelInfo={lvls.energyCapacity}
+            onUpgrade={() => action("upgradeTrain", id, "energyCapacity")}
+            level={train.levels.energyCapacity}
+          />
+          <Field
+            label="💰 capacity"
+            value={train.golds}
+            levelInfo={lvls.goldCapacity}
+            onUpgrade={() => action("upgradeTrain", id, "goldCapacity")}
+            level={train.levels.goldCapacity}
+          />
+        </div>
       </div>
     );
   }
@@ -170,31 +179,39 @@ class OpenedMiner extends Component {
   render() {
     const { game, opened: { id }, action } = this.props;
     const miner = game.miners[id];
+    const mine = game.mines[miner.mineId];
     const lvls = getLevels(game, miner, "miner");
     return (
       <div>
         <h2>
           Miner {id + 1}
         </h2>
-        <Field
-          label="🍕 speed"
-          levelInfo={lvls.speed}
-          onUpgrade={() => action("upgradeMiner", id, "speed")}
-          level={miner.levels.speed}
-        />
-        <Field
-          label="⚡️ consumption"
-          levelInfo={lvls.consumption}
-          onUpgrade={() => action("upgradeMiner", id, "consumption")}
-          level={miner.levels.consumption}
-        />
-        <Field
-          label="💰 capacity"
-          value={miner.golds}
-          levelInfo={lvls.capacity}
-          onUpgrade={() => action("upgradeMiner", id, "capacity")}
-          level={miner.levels.capacity}
-        />
+        {mine
+          ? <p>
+              💰 {mine.golds.toFixed(0)} to mine.
+            </p>
+          : null}
+        <div className="improvments">
+          <Field
+            label="🍕 speed"
+            levelInfo={lvls.speed}
+            onUpgrade={() => action("upgradeMiner", id, "speed")}
+            level={miner.levels.speed}
+          />
+          <Field
+            label="⚡️ consumption"
+            levelInfo={lvls.consumption}
+            onUpgrade={() => action("upgradeMiner", id, "consumption")}
+            level={miner.levels.consumption}
+          />
+          <Field
+            label="💰 capacity"
+            value={miner.golds}
+            levelInfo={lvls.capacity}
+            onUpgrade={() => action("upgradeMiner", id, "capacity")}
+            level={miner.levels.capacity}
+          />
+        </div>
       </div>
     );
   }
@@ -204,12 +221,18 @@ class OpenedMine extends Component {
   render() {
     const { game, opened: { id }, action } = this.props;
     const mine = game.mines[id];
+    console.log(mine);
     return (
       <div>
         <h2>
           Mine {id + 1}
         </h2>
-        <div>This is a gold mine, add a miner here to start mining it.</div>
+        <div className="description">
+          This is a Gold Mine, add a <strong>M</strong>iner to mine it.
+        </div>
+        <p>
+          💰 {mine.golds.toFixed(0)} to mine.
+        </p>
       </div>
     );
   }
@@ -222,14 +245,20 @@ class OpenedBase extends Component {
     return (
       <div>
         <h2>Base</h2>
-        <Field
-          label="⚡️ Power"
-          description="Do Not Run Out Of POWER !!!"
-          value={game.energy}
-          levelInfo={lvls.capacity}
-          onUpgrade={() => action("upgradeBase", "capacity")}
-          level={game.base.levels.capacity}
-        />
+        <div className="description">
+          This is your Base. Trains unload the conveyed 💰 and ⚡️ when they pass
+          on it.
+        </div>
+        <div className="improvments">
+          <Field
+            label="⚡️ Power"
+            description="Do Not Run Out Of POWER !!!"
+            value={game.energy}
+            levelInfo={lvls.capacity}
+            onUpgrade={() => action("upgradeBase", "capacity")}
+            level={game.base.levels.capacity}
+          />
+        </div>
       </div>
     );
   }
@@ -245,13 +274,15 @@ class OpenedAccumulator extends Component {
         <h2>
           Accumulator {id + 1}
         </h2>
-        <Field
-          label="⚡️ capacity"
-          value={accumulator.energy}
-          levelInfo={lvls.capacity}
-          onUpgrade={() => action("upgradeAccumulator", id, "capacity")}
-          level={accumulator.levels.capacity}
-        />
+        <div className="improvments">
+          <Field
+            label="⚡️ capacity"
+            value={accumulator.energy}
+            levelInfo={lvls.capacity}
+            onUpgrade={() => action("upgradeAccumulator", id, "capacity")}
+            level={accumulator.levels.capacity}
+          />
+        </div>
       </div>
     );
   }
@@ -268,56 +299,109 @@ class OpenedMarket extends Component {
         <h2>
           Market {id + 1}
         </h2>
-        <Field
-          label="trading rate"
-          description="Improve your negotiation skills to get better offers"
-          levelInfo={lvls.trading}
-          onUpgrade={() => action("upgradeMarket", id, "trading")}
-          level={market.levels.trading}
-        />
-        <Field
-          label="⚡️ capacity"
-          value={market.energy}
-          levelInfo={lvls.energyCapacity}
-          onUpgrade={() => action("upgradeTrain", id, "energyCapacity")}
-          level={market.levels.energyCapacity}
-        />
-        <Field
-          label="💰 capacity"
-          value={market.golds}
-          levelInfo={lvls.goldCapacity}
-          onUpgrade={() => action("upgradeTrain", id, "goldCapacity")}
-          level={market.levels.goldCapacity}
-        />
+        <div className="description">
+          Trade ⚡️ and 💰. Train must collect them.
+        </div>
+        <div className="improvments">
+          <Field
+            label="trading rate"
+            description="Improve your negotiation skills to get better offers"
+            levelInfo={lvls.trading}
+            onUpgrade={() => action("upgradeMarket", id, "trading")}
+            level={market.levels.trading}
+          />
+          <Field
+            label="⚡️ capacity"
+            value={market.energy}
+            levelInfo={lvls.energyCapacity}
+            onUpgrade={() => action("upgradeTrain", id, "energyCapacity")}
+            level={market.levels.energyCapacity}
+          />
+          <Field
+            label="💰 capacity"
+            value={market.golds}
+            levelInfo={lvls.goldCapacity}
+            onUpgrade={() => action("upgradeTrain", id, "goldCapacity")}
+            level={market.levels.goldCapacity}
+          />
+        </div>
         <br />
         {["energy", "golds"].map(currency =>
-          <div
-            key={currency}
-            style={{
-              margin: "5px",
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-around"
-            }}
-          >
-            <span style={{ whiteSpace: "nowrap" }}>
-              buy {
+          <div key={currency}>
+            <strong>
+              BUY {
                 currencyLabels[currency === "energy" ? "golds" : "energy"]
               }{" "}
               for{" "}
-            </span>
-            {[10, 50, 100, 500, 1000].map(amount =>
-              <Button
-                key={amount}
-                onClick={() => action("tradeMarket", id, currency, amount)}
-                disabled={!affordable(game, amount)}
-              >
-                {currencyLabels[currency]}
-                {amount}
-              </Button>
-            )}
+            </strong>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-around"
+              }}
+            >
+              {[10, 50, 100, 500, 1000].map(amount =>
+                <Button
+                  key={amount}
+                  onClick={() => action("tradeMarket", id, currency, amount)}
+                  disabled={!affordable(game, amount)}
+                >
+                  {currencyLabels[currency]} {amount}
+                </Button>
+              )}
+            </div>
           </div>
         )}
+      </div>
+    );
+  }
+}
+
+class GeneralHelp extends PureComponent {
+  render() {
+    return (
+      <div>
+        <p>
+          Goal: survive ENERGY ATTACKs by collecting energy to your base; never{" "}
+          <strong>run out of power</strong>.
+        </p>
+        <h3>Getting Started</h3>
+        <ul>
+          <li>
+            Place <strong>A</strong>ccumulator to capture falling energy.
+          </li>
+          <li>
+            Add <strong>R</strong>ail to connect it to a train. Train conveys
+            the energy to the Base.
+          </li>
+          <li>
+            Add <strong>M</strong>iner to a Mine (dark sphere) and make the
+            train passing nearby. Train conveys mined golds to the Base.
+          </li>
+        </ul>
+
+        <p>
+          Improve train/miner/accumulator capabilities by clicking on them and
+          buying extensions... Add more trains and rails...{" "}
+          <strong>click the objects to get more info.</strong>
+        </p>
+      </div>
+    );
+  }
+}
+
+class Start extends Component {
+  render() {
+    return (
+      <div>
+        <h2>
+          <strong>The Cube</strong>
+          <em>
+            {" "}by <a href="https://twitter.com/greweb">@greweb</a>
+          </em>
+        </h2>
+        <GeneralHelp />
       </div>
     );
   }
@@ -328,17 +412,22 @@ class Help extends Component {
     return (
       <div>
         <h2>Help</h2>
-        <div>(to be written...)</div>
+        <GeneralHelp />
       </div>
     );
   }
 }
 
 class GameOver extends Component {
+  restart = () => this.props.action("restart");
   render() {
     return (
       <div>
         <h2>Game Over</h2>
+        <p>
+          <strong>Running out of power...</strong>
+        </p>
+        <Button onClick={this.restart}>RESTART</Button>
       </div>
     );
   }
@@ -351,8 +440,12 @@ const OpenedComps = {
   base: OpenedBase,
   accumulator: OpenedAccumulator,
   market: OpenedMarket,
+  start: Start,
   help: Help,
   gameOver: GameOver
+};
+const OpenedCompsNonClosable = {
+  gameOver: true
 };
 
 class Opened extends Component {
@@ -364,10 +457,14 @@ class Opened extends Component {
       ? <div className="layer">
           <div className="clickout" onClick={this.close} />
           <div className="popup">
-            <div className="close" onClick={this.close}>
-              X
+            {OpenedCompsNonClosable[opened.type]
+              ? null
+              : <div className="close" onClick={this.close}>
+                  X
+                </div>}
+            <div className="body">
+              <Comp opened={opened} {...this.props} />
             </div>
-            <Comp opened={opened} {...this.props} />
           </div>
         </div>
       : null;
@@ -439,7 +536,7 @@ class ActionMenuGeneral extends Component {
           disabled={!affordable(game, cost)}
         >
           <strong>{label[0]}</strong>
-          {label.slice(1)} (💰{cost})
+          {label.slice(1)} (💰 {cost})
         </CreateModeButton>
       );
     };
