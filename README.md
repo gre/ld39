@@ -65,7 +65,7 @@ There is one thing that I missed to add in the current game: an interpolation be
 
 ### Signed Distance Functions (aka raymarching a distance func)
 
-I wanted to give a try to this rendering paradigm. It involves raymarching a `(vec3 position) => distance` function that estimates the distance to the closest 3D Object for a given point in space. It's a mindblowing paradigm (to me it's kinda as mindblowing as the [`vec2=>color`](http://greweb.me/2013/11/functional-rendering/) fragment shader paradigm).
+I wanted to give a try to this rendering paradigm. It involves [raymarching](http://iquilezles.org/www/articles/raymarchingdf/raymarchingdf.htm) a `(vec3 position) => distance` function that estimates the distance to the closest 3D Object for a given point in space. It's a mindblowing paradigm (to me it's kinda as mindblowing as the [`vec2=>color`](http://greweb.me/2013/11/functional-rendering/) fragment shader paradigm).
 I found this paradigm very powerful to express complex shapes but also quite difficult to have good performance (always tweaking the raymarch parameters).
 
 **playground**
