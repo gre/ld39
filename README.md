@@ -96,6 +96,7 @@ you can see the problem that `opRep` is creating: the fact i have non smooth cur
 (see it in action https://www.youtube.com/watch?v=Nsc1oPUaCxM)
 
 **wrong attempt to do a terrain created crazy glitch**
+
 <img width="400" src="https://user-images.githubusercontent.com/211411/28782512-9e5970f8-760d-11e7-8bcb-7caa289824cc.png">
 
 ---
