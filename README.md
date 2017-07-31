@@ -91,13 +91,13 @@ I also found that getting a good estimation function is somewhat challenging. Fo
 I also wrote my custom way to display (inspired from this talk: https://www.youtube.com/watch?v=s8nFqwOho-s):
 
 you can see the problem that `opRep` is creating: the fact i have non smooth curve (tho I don't know why my lines are breaking, probably the raymarch quality)
-![](https://user-images.githubusercontent.com/211411/28782642-0b449224-760e-11e7-944b-b445ba04053b.png)
+<img width="400" https://user-images.githubusercontent.com/211411/28782642-0b449224-760e-11e7-944b-b445ba04053b.png />
 
 (see it in action https://www.youtube.com/watch?v=Nsc1oPUaCxM)
 
 **wrong attempt to do a terrain created crazy glitch**
 
-<img width="400" src="https://user-images.githubusercontent.com/211411/28782512-9e5970f8-760d-11e7-8bcb-7caa289824cc.png">
+<img src="https://user-images.githubusercontent.com/211411/28782512-9e5970f8-760d-11e7-8bcb-7caa289824cc.png">
 
 ---
 
