@@ -72,9 +72,10 @@ I found this paradigm very powerful to express complex shapes but also quite dif
 
 I started my experiment with doing a plane and repeating torus on it. then it was very easy to iterate and compose this repeating torus into a room with walls:
 
+
 <img width="433" alt="screen shot 2017-07-27 at 19 33 36" src="https://user-images.githubusercontent.com/211411/28777459-891e1674-75fb-11e7-94f9-dd78184f980c.png">
 
-I've also made a "toon" lighting effect: the black line on edge of the 3D objects is performed by simply rendering black when `dot(normal, direction) < 0.2` (quick way I figured out to do it, tho it does not work great when you have planes so I opt-out my planes to have this effect). I also played with a stepping on the lighting diffuse value to have some "rough lines" in the rendered lighting (tried various thing around `diffuse = floor(diffuse*N)/N`).
+I've also made a "toon" lighting effect: the black line on edge of the 3D objects is performed by simply rendering black when `dot(normal, direction) < 0.2` (quick way I figured out to do it, tho [it does not work great when you have planes](https://user-images.githubusercontent.com/211411/28782549-c0afb3ba-760d-11e7-98a5-7ff5b3966128.png) so I opt-out my planes to have this effect). I also played with a stepping on the lighting diffuse value to have some "rough lines" in the rendered lighting (tried various thing around `diffuse = floor(diffuse*N)/N`).
 
 Finally, I had fun doing some `smin` (smooth min) that allows to do smooth union, see how the edge nicely join, as well at the torus with the plane:
 
@@ -85,4 +86,18 @@ Finally, I had fun doing some `smin` (smooth min) that allows to do smooth union
 
 I also found that getting a good estimation function is somewhat challenging. For instance, the [`opRep` operation](http://iquilezles.org/www/articles/distfunctions/distfunctions.htm) seems to generate bad result on edges, like if you repeat cells and one of your cell is a cube that touch edges. because basically a cell is not aware of its neighbor models, I wonder if you need to also `opU` at least the direct neighbor cell? (performance VS quality tradeoff)
 
-More on the subject: http://xem.github.io/articles/#webgl_quest_2
+**an utility to visualize the distance on a plane**
+
+I also wrote my custom way to display (inspired from this talk: https://www.youtube.com/watch?v=s8nFqwOho-s):
+
+you can see the problem that `opRep` is creating: the fact i have non smooth curve (tho I don't know why my lines are breaking, probably the raymarch quality)
+![](https://user-images.githubusercontent.com/211411/28782642-0b449224-760e-11e7-944b-b445ba04053b.png)
+
+(see it in action https://www.youtube.com/watch?v=Nsc1oPUaCxM)
+
+**wrong attempt to do a terrain created crazy glitch**
+<img width="400" src="https://user-images.githubusercontent.com/211411/28782512-9e5970f8-760d-11e7-8bcb-7caa289824cc.png">
+
+---
+
+More on raymarching: http://xem.github.io/articles/#webgl_quest_2
