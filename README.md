@@ -91,9 +91,10 @@ I also found that getting a good estimation function is somewhat challenging. Fo
 I also wrote my custom way to display (inspired from this talk: https://www.youtube.com/watch?v=s8nFqwOho-s):
 
 you can see the problem that `opRep` is creating: the fact i have non smooth curve (tho I don't know why my lines are breaking, probably the raymarch quality)
-<img width="400" https://user-images.githubusercontent.com/211411/28782642-0b449224-760e-11e7-944b-b445ba04053b.png />
 
-(see it in action https://www.youtube.com/watch?v=Nsc1oPUaCxM)
+<img width="400" src=https://user-images.githubusercontent.com/211411/28782642-0b449224-760e-11e7-944b-b445ba04053b.png />
+
+(see it in action https://www.youtube.com/watch?v=Nsc1oPUaCxM – I have XBox360 controller support for debugging too😇)
 
 **wrong attempt to do a terrain created crazy glitch**
 
